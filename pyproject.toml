@@ -5,7 +5,10 @@ requires-python = ">=3.11"
 dependencies = []
 
 [dependency-groups]
-dev = ["pytest"]
+dev = [
+    "dbt-duckdb>=1.11.0",
+    "pytest",
+]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]

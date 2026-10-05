@@ -1,0 +1,43 @@
+version: 2
+
+models:
+  - name: stib_waiting
+    columns:
+      - name: stop_id
+        data_tests: [not_null]
+      - name: expected_arrival
+        data_tests: [not_null]
+  - name: stib_vehicles
+    columns:
+      - name: line_id
+        data_tests: [not_null]
+  - name: stib_stops
+    columns:
+      - name: stop_id
+        data_tests: [not_null, unique]
+      - name: lat
+        data_tests:
+          - in_range:
+              arguments: {min: 50.7, max: 51.0}
+  - name: air_quality
+    columns:
+      - name: pollutant
+        data_tests:
+          - accepted_values:
+              arguments: {values: [no2, pm10, pm25]}
+      - name: value_ugm3
+        data_tests:
+          - in_range:
+              arguments: {min: 0, max: 1000}
+  - name: electricity_load
+    columns:
+      - name: measured_at
+        data_tests: [not_null, unique]
+      - name: load_mw
+        data_tests:
+          - in_range:
+              arguments: {min: 3000, max: 20000}
+  - name: city_hourly
+    columns:
+      - name: hour
+        data_tests: [not_null, unique]

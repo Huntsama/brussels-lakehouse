@@ -1,0 +1,9 @@
+name: lakehouse
+version: "1.0"
+profile: lakehouse
+vars:
+  bronze: "{{ env_var('BRONZE_DIR', 'data/bronze') }}"
+models:
+  lakehouse:
+    silver: {+materialized: table, +schema: silver}
+    gold: {+materialized: table, +schema: gold}

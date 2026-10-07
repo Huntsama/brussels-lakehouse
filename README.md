@@ -1,21 +1,66 @@
-# Lakehouse
+# Brussels open-data lakehouse
 
-Part of the one-project-per-track plan. Full brief, skills, real-job evidence and live rank: `../projects-to-do/1-do-first/02-p09-lakehouse-on-databricks/README.md`.
+Every 15 minutes this pipeline collects Brussels public-transport, air-quality and electricity data, and turns it into one clean hourly table:
 
-Schedule: 10 working days, 2026-10-15 → 2026-12-10 (in parallel with the other projects; see `../projects-to-do/SCHEDULE.md`).
+> How long do you wait for a STIB tram or bus, how polluted is the air, and how much power is Belgium using, hour by hour?
 
-## Tasks (tick them in ../projects-to-do/SCHEDULE.md; this list is a copy)
+## Sources (all open, no key)
 
-- [ ] 2026-10-15: Databricks Free Edition account; pull STIB + IRCEL air-quality data into bronze tables
-- [ ] 2026-10-22: Add Elia electricity data; Delta Lake bronze layer with schema checks
-- [ ] 2026-10-29: dbt models: silver (clean) layer + tests
-- [ ] 2026-11-05: dbt gold layer: star schema (Kimball), punctuality/air/energy per commune
-- [ ] 2026-11-12: Data-quality tests in CI; run once on BigQuery sandbox to compare
-- [ ] 2026-11-19: Dashboard: Power BI / Fabric (or Databricks SQL) report
-- [ ] 2026-11-26: Public dashboard page on jwds.me; screenshots
-- [ ] 2026-11-27: Schedule the daily pipeline (Lakeflow or Airflow locally)
-- [ ] 2026-12-03: Let it run; fix failures; record run times and row counts
-- [ ] 2026-12-10: README: architecture, numbers, limits; LinkedIn post ✅
+| Source | What | How often |
+|---|---|---|
+| [STIB-MIVB](https://data.belgianmobility.io/) | live vehicle positions, waiting times at ~900 stops, 2,458 stop locations | real time, so we keep snapshots |
+| [IRCEL-CELINE](https://geo.irceline.be/sos/api/v1/) | NO₂, PM10, PM2.5 at 13 Brussels stations | hourly |
+| [Elia](https://opendata.elia.be/) | Belgian grid load (MW) | 15 min |
 
-## Done when
-- Live link or video · numbers vs a baseline in this README · tests + CI green · CV line added to profile.yaml · LinkedIn post
+## Architecture
+
+```mermaid
+flowchart LR
+  A[STIB / IRCEL / Elia APIs] -->|every 15 min| F[Azure Function<br/>timer trigger]
+  F -->|managed identity| B[(ADLS Gen2<br/>bronze: raw JSON)]
+  B --> S[dbt silver<br/>clean, dedupe, typed]
+  S --> G[dbt gold<br/>city_hourly]
+  G --> D[Dashboard]
+```
+
+- **Bronze**: each API answer saved untouched, partitioned by `source/date=YYYY-MM-DD/HHMMSS.json`.
+- **Silver** (`transform/models/silver`): one tidy table per source. Overlapping snapshots are de-duplicated, latest revision wins.
+- **Gold** (`transform/models/gold/city_hourly.sql`): one row per hour with median wait, vehicles in service, NO₂/PM and grid load.
+- **Tests**: pytest for the ingest, dbt tests (not null, unique, accepted values, value ranges) on every model. CI runs both on a small sample.
+- **Infra as code**: `infra/main.tf` creates the data lake, the Function app (Flex Consumption), its role assignments and a $10/month budget alert.
+
+## Run it locally
+
+```bash
+uv sync --group dev
+uv run python -m lakehouse.ingest          # one snapshot into data/bronze
+uv run python -m lakehouse.ingest stops    # stop list (weekly is enough)
+uv run dbt build --project-dir transform --profiles-dir transform
+uv run pytest -q
+```
+
+## Deploy to Azure
+
+```bash
+cd infra
+cp terraform.tfvars.example terraform.tfvars   # your subscription id and email
+az login
+terraform init && terraform apply
+cd .. && func azure functionapp publish func-belakehouse
+```
+
+## Limits
+
+- STIB publishes no history, so delays can only be measured from the snapshots this pipeline has collected.
+- "Wait time" is STIB's own prediction, not the scheduled timetable. Comparing it with GTFS to get true lateness is the next step.
+- Elia's measured load arrives with about a day of delay; the latest hours are empty until it does.
+- Brussels air is averaged over all stations; per-commune values need a stop-to-station mapping.
+
+## Status
+
+- [x] Ingest STIB, IRCEL and Elia into bronze
+- [x] dbt silver and gold with tests, CI
+- [x] Terraform for Azure (lake, function, budget)
+- [ ] Deployed and running on Azure for a week
+- [ ] Dashboard (Power BI / Fabric, plus a public page on jwds.me)
+- [ ] Delay vs timetable using GTFS

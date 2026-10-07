@@ -74,19 +74,26 @@ SOURCES = {
 }
 
 
-def save(bronze_dir, source, payload, now):
-    path = Path(bronze_dir) / source / f"date={now:%Y-%m-%d}" / f"{now:%H%M%S}.json"
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps({"fetched_at": now.isoformat(), "data": payload}))
-    return path
+def local_writer(root):
+    def write(key, text):
+        path = Path(root) / key
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text)
+        return path
+    return write
 
 
-def run(bronze_dir, sources=SOURCES, now=None):
+def save(write, source, payload, now):
+    key = f"{source}/date={now:%Y-%m-%d}/{now:%H%M%S}.json"
+    return write(key, json.dumps({"fetched_at": now.isoformat(), "data": payload}))
+
+
+def run(write, sources=SOURCES, now=None):
     now = now or datetime.now(timezone.utc)
     failed = []
     for name, fetch in sources.items():
         try:
-            print(save(bronze_dir, name, fetch(), now))
+            print(save(write, name, fetch(), now))
         except Exception as e:  # one dead API must not lose the others
             print(f"{name} failed: {e}", file=sys.stderr)
             failed.append(name)
@@ -94,8 +101,8 @@ def run(bronze_dir, sources=SOURCES, now=None):
 
 
 if __name__ == "__main__":
-    bronze = os.environ.get("BRONZE_DIR", "data/bronze")
+    write = local_writer(os.environ.get("BRONZE_DIR", "data/bronze"))
     if sys.argv[1:] == ["stops"]:  # static, refresh weekly
-        print(save(bronze, "stib_stops", stib_stops(), datetime.now(timezone.utc)))
+        print(save(write, "stib_stops", stib_stops(), datetime.now(timezone.utc)))
     else:
-        sys.exit(1 if run(bronze) else 0)
+        sys.exit(1 if run(write) else 0)

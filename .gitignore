@@ -9,3 +9,7 @@ transform/logs/
 logs/
 target/
 .user.yml
+infra/.terraform/
+infra/*.tfstate*
+infra/terraform.tfvars
+infra/.terraform.lock.hcl

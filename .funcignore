@@ -1,0 +1,9 @@
+.git*
+.venv
+data
+tests
+transform
+infra
+*.md
+uv.lock
+pyproject.toml

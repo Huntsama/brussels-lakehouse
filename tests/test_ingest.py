@@ -7,7 +7,7 @@ NOW = datetime(2026, 10, 10, 8, 15, tzinfo=timezone.utc)
 
 
 def test_run_writes_partitioned_files(tmp_path):
-    failed = ingest.run(tmp_path, {"elia": lambda: {"results": [1]}}, NOW)
+    failed = ingest.run(ingest.local_writer(tmp_path), {"elia": lambda: {"results": [1]}}, NOW)
     path = tmp_path / "elia" / "date=2026-10-10" / "081500.json"
     assert failed == []
     assert json.loads(path.read_text()) == {"fetched_at": NOW.isoformat(), "data": {"results": [1]}}
@@ -17,7 +17,7 @@ def test_one_failing_source_does_not_stop_the_rest(tmp_path):
     def boom():
         raise OSError("api down")
 
-    failed = ingest.run(tmp_path, {"a": boom, "b": lambda: []}, NOW)
+    failed = ingest.run(ingest.local_writer(tmp_path), {"a": boom, "b": lambda: []}, NOW)
     assert failed == ["a"]
     assert (tmp_path / "b" / "date=2026-10-10" / "081500.json").exists()
 

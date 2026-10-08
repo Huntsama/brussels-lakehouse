@@ -37,6 +37,7 @@ uv run python -m lakehouse.ingest          # one snapshot into data/bronze
 uv run python -m lakehouse.ingest stops    # stop list (weekly is enough)
 uv run dbt build --project-dir transform --profiles-dir transform
 uv run pytest -q
+uv run python -m lakehouse.report          # dashboard -> site/index.html
 ```
 
 ## Deploy to Azure

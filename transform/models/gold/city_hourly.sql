@@ -20,6 +20,11 @@ air as (
     from {{ ref('air_quality') }}
     group by 1
 ),
+punctuality as (
+    select hour, median(excess_wait_min) as excess_wait_min
+    from {{ ref('stop_line_hourly') }}
+    group by 1
+),
 grid as (
     select date_trunc('hour', measured_at) as hour, avg(load_mw) as load_mw
     from {{ ref('electricity_load') }}
@@ -29,5 +34,6 @@ select *
 from transit
 full join fleet using (hour)
 full join air using (hour)
+full join punctuality using (hour)
 full join grid using (hour)
 order by hour

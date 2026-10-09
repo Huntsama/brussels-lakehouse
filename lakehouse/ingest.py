@@ -40,6 +40,20 @@ def stib_stops():
     return get_json(f"{STIB}/static/StopDetails")
 
 
+GTFS_FILES = ["routes.txt", "trips.txt", "stop_times.txt", "calendar.txt", "calendar_dates.txt"]
+
+
+def save_gtfs(write, now):
+    """STIB timetable (GTFS zip, ~19 MB). Keep the files we model, as published."""
+    import io
+    import zipfile
+    req = urllib.request.Request(STIB.replace("datasets/stibmivb", "gtfs/feed/stibmivb/static"),
+                                 headers={"User-Agent": "be-open-lakehouse"})
+    with urllib.request.urlopen(req, timeout=300) as r:
+        z = zipfile.ZipFile(io.BytesIO(r.read()))
+    return [write(f"gtfs/date={now:%Y-%m-%d}/{name}", z.read(name).decode("utf-8-sig")) for name in GTFS_FILES]
+
+
 def ircel(hours=24):
     """Last `hours` of hourly values for every Brussels station (codes start with 41)."""
     end = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -104,5 +118,7 @@ if __name__ == "__main__":
     write = local_writer(os.environ.get("BRONZE_DIR", "data/bronze"))
     if sys.argv[1:] == ["stops"]:  # static, refresh weekly
         print(save(write, "stib_stops", stib_stops(), datetime.now(timezone.utc)))
+    elif sys.argv[1:] == ["gtfs"]:  # timetable, refresh weekly
+        print(*save_gtfs(write, datetime.now(timezone.utc)), sep="\n")
     else:
         sys.exit(1 if run(write) else 0)

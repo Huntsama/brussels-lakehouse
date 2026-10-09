@@ -35,5 +35,7 @@ def snapshot(timer: func.TimerRequest) -> None:
 
 
 @app.timer_trigger(arg_name="timer", schedule="0 0 3 * * 1")  # Mondays 03:00 UTC
-def stops(timer: func.TimerRequest) -> None:
-    ingest.save(blob_writer(), "stib_stops", ingest.stib_stops(), datetime.now(timezone.utc))
+def weekly(timer: func.TimerRequest) -> None:
+    now = datetime.now(timezone.utc)
+    ingest.save(blob_writer(), "stib_stops", ingest.stib_stops(), now)
+    ingest.save_gtfs(blob_writer(), now)

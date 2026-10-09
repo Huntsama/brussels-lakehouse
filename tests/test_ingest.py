@@ -47,7 +47,7 @@ def test_report_page_has_data(tmp_path):
     con = duckdb.connect(db)
     con.sql("create schema main_gold")
     con.sql("""create table main_gold.city_hourly as select now()::timestamptz as hour,
-               4.5 as median_wait_min, 10.0 as no2, 5.0 as pm10, 2.0 as pm25, 8000.0 as load_mw""")
+               4.5 as median_wait_min, 0.8 as excess_wait_min, 10.0 as no2, 5.0 as pm10, 2.0 as pm25, 8000.0 as load_mw""")
     con.close()
     out = tmp_path / "index.html"
     assert report.build(db, out) == 1

@@ -37,6 +37,16 @@ models:
         data_tests:
           - in_range:
               arguments: {min: 3000, max: 20000}
+  - name: gtfs_departures
+    columns:
+      - name: scheduled_departure
+        data_tests: [not_null]
+  - name: stop_line_hourly
+    columns:
+      - name: scheduled_wait_min
+        data_tests:
+          - in_range:
+              arguments: {min: 0, max: 30}
   - name: city_hourly
     columns:
       - name: hour

@@ -126,3 +126,11 @@ resource "azurerm_consumption_budget_subscription" "budget" {
 
 output "function_app" { value = azurerm_function_app_flex_consumption.ingest.name }
 output "lake_account" { value = azurerm_storage_account.lake.name }
+
+# Public dashboard page, served from the lake's $web container.
+resource "azurerm_storage_account_static_website" "site" {
+  storage_account_id = azurerm_storage_account.lake.id
+  index_document     = "index.html"
+}
+
+output "site_url" { value = azurerm_storage_account.lake.primary_web_endpoint }

@@ -14,3 +14,4 @@ infra/*.tfstate*
 infra/terraform.tfvars
 infra/.terraform.lock.hcl
 site/
+infra/tfplan

@@ -7,12 +7,15 @@ terraform {
 
 provider "azurerm" {
   features {}
-  subscription_id = var.subscription_id
+  # Only the providers we use (Storage, Web, Consumption); registering all of them fails on student subscriptions.
+  resource_provider_registrations = "none"
+  resource_providers_to_register  = ["Microsoft.Storage", "Microsoft.Web", "Microsoft.Consumption"]
+  subscription_id                 = var.subscription_id
 }
 
 variable "subscription_id" { type = string }
 variable "alert_email" { type = string }
-variable "location" { default = "westeurope" }
+variable "location" { default = "germanywestcentral" } # student subscriptions only allow a few regions
 variable "name" { default = "belakehouse" }
 
 data "azurerm_subscription" "current" {}
@@ -63,13 +66,15 @@ resource "azurerm_service_plan" "plan" {
 }
 
 resource "azurerm_function_app_flex_consumption" "ingest" {
-  name                        = "func-${var.name}"
-  resource_group_name         = azurerm_resource_group.rg.name
-  location                    = var.location
-  service_plan_id             = azurerm_service_plan.plan.id
-  storage_container_type      = "blobContainer"
-  storage_container_endpoint  = "${azurerm_storage_account.func.primary_blob_endpoint}${azurerm_storage_container.deploy.name}"
-  storage_authentication_type = "SystemAssignedIdentity"
+  name                       = "func-${var.name}"
+  resource_group_name        = azurerm_resource_group.rg.name
+  location                   = var.location
+  service_plan_id            = azurerm_service_plan.plan.id
+  storage_container_type     = "blobContainer"
+  storage_container_endpoint = "${azurerm_storage_account.func.primary_blob_endpoint}${azurerm_storage_container.deploy.name}"
+  # identity auth here leaves AzureWebJobsStorage with an empty key (provider bug), so use the key
+  storage_authentication_type = "StorageAccountConnectionString"
+  storage_access_key          = azurerm_storage_account.func.primary_access_key
   runtime_name                = "python"
   runtime_version             = "3.12"
   maximum_instance_count      = 40

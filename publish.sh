@@ -19,4 +19,6 @@ uv run dbt build --project-dir transform --profiles-dir transform
 uv run python -m lakehouse.report site/index.html
 az storage blob upload --account-name "$ACCOUNT" --auth-mode key -c '$web' -f site/index.html -n index.html \
   --content-type "text/html; charset=utf-8" --overwrite -o none
+az storage blob upload --account-name "$ACCOUNT" --auth-mode key -c '$web' -f site/lines.json -n lines.json \
+  --content-type "application/json" --overwrite -o none
 echo "https://$ACCOUNT.z1.web.core.windows.net/"

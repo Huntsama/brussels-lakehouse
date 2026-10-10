@@ -1,0 +1,7 @@
+RewriteEngine On
+RewriteCond %{HTTPS} off
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+# lines.json is a public data product: let other sites (the live map) read it
+<Files "lines.json">
+Header set Access-Control-Allow-Origin "*"
+</Files>

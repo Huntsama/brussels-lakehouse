@@ -520,6 +520,15 @@ QUERIES = {
 }
 
 
+# Typical lateness per line and hour of day (Brussels time); 3 stop-hours minimum per cell.
+LINES_BY_HOUR = """
+    select line_id, hour(hour at time zone 'Europe/Brussels') as hod, round(median(excess_wait_min), 2)
+    from main_gold.stop_line_hourly
+    where line_id not like 'N%'
+    group by all having count(*) >= 3
+"""
+
+
 def build(db_path, out_path):
     con = duckdb.connect(db_path, read_only=True)
     data = {}
@@ -533,6 +542,15 @@ def build(db_path, out_path):
                 .replace("__HOURS__", str(len(data["city"]))))
     Path(out_path).parent.mkdir(parents=True, exist_ok=True)
     Path(out_path).write_text(html)
+    # lines.json: a small public data product, read by the live map (brussels-live)
+    rel = con.sql(LINES_BY_HOUR)
+    lines = {}
+    for line_id, hod, excess in rel.fetchall():
+        lines.setdefault(line_id, {"by_hour": [None] * 24})["by_hour"][hod] = float(excess)
+    for row in data["lines"]:
+        lines.setdefault(row["line_id"], {"by_hour": [None] * 24})["excess"] = float(row["excess"])
+    Path(out_path).with_name("lines.json").write_text(json.dumps(
+        {"updated": data["updated"], "unit": "median excess wait, minutes", "lines": lines}, separators=(",", ":")))
     return len(data["city"])
 
 

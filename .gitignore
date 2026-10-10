@@ -13,5 +13,6 @@ infra/.terraform/
 infra/*.tfstate*
 infra/terraform.tfvars
 infra/.terraform.lock.hcl
-site/
+site/*
+!site/.htaccess
 infra/tfplan

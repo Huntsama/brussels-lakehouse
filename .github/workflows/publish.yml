@@ -32,4 +32,7 @@ jobs:
         run: ./publish.sh
       # Same page on lakehouse.jwds.me (shared hosting with a free certificate). Azure stays the source.
       - if: env.AZURE_STORAGE_KEY != '' && env.FTP_PASSWORD != ''
-        run: curl -sS --ssl-reqd --user "$FTP_USER:$FTP_PASSWORD" -T site/index.html "ftp://$FTP_HOST/index.html"
+        run: |
+          for f in index.html lines.json .htaccess; do
+            curl -sS --ssl-reqd --user "$FTP_USER:$FTP_PASSWORD" -T "site/$f" "ftp://$FTP_HOST/$f"
+          done

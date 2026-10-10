@@ -50,7 +50,8 @@ def test_report_page_has_data(tmp_path):
     con.sql("""create table main_gold.city_hourly as select now()::timestamptz as hour,
                4.5 as median_wait_min, 0.8 as excess_wait_min, 10.0 as no2, 5.0 as pm10, 2.0 as pm25, 8000.0 as load_mw""")
     con.sql("""create table main_gold.stop_line_hourly as select '1' as stop_id, '71' as line_id, 'bus' as mode,
-               now()::timestamptz as hour, 4 as snapshots, 6.0 as actual_wait_min, 5.0 as scheduled_wait_min, 1.0 as excess_wait_min""")
+               now()::timestamptz as hour, 4 as snapshots, 6.0 as actual_wait_min, 5.0 as scheduled_wait_min, 1.0 as excess_wait_min
+               from range(3)""")
     con.sql("create schema main_silver")
     con.sql("create table main_silver.stib_stops as select '1' as stop_id, 'Flagey' as name_fr, 'Flagey' as name_nl, 50.83 as lat, 4.37 as lon")
     con.sql("create table main_silver.gtfs_routes as select '71' as line_id, '#0000FF' as color, '#FFFFFF' as text_color")
@@ -61,3 +62,5 @@ def test_report_page_has_data(tmp_path):
     html = out.read_text()
     assert '"median_wait_min":4.5' in html
     assert '"excess":1.0' in html  # hour-of-day profile, no minimum-count filter
+    lines = json.loads((tmp_path / "lines.json").read_text())["lines"]
+    assert any(v == 1.0 for v in lines["71"]["by_hour"])

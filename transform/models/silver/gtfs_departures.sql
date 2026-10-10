@@ -52,6 +52,8 @@ active as (
 select
     st.stop_id,
     r.route_short_name as line_id,
+    -- GTFS route_type: 0 tram, 1 metro, 3 bus
+    case r.route_type when '0' then 'tram' when '1' then 'metro' when '3' then 'bus' else 'other' end as mode,
     -- GTFS times can pass 24:00; count seconds from local midnight of the service day.
     timezone('Europe/Brussels', a.d::timestamp + to_seconds(
         split_part(st.departure_time, ':', 1)::int * 3600

@@ -13,3 +13,4 @@ jobs:
       - run: uv sync --group dev
       - run: uv run pytest -q
       - run: uv run dbt build --project-dir transform --profiles-dir transform
+      - run: uv run python -m lakehouse.analysis

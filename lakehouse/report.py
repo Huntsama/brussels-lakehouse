@@ -1,4 +1,4 @@
-"""Turn the gold table into one static HTML page (for jwds.me)."""
+"""Turn the gold table into one static HTML page."""
 
 import json
 import os

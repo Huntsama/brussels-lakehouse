@@ -15,13 +15,13 @@ awt as (
     group by all
 ),
 headways as (
-    select stop_id, line_id, scheduled_departure,
+    select stop_id, line_id, mode, scheduled_departure,
            date_diff('second', scheduled_departure,
                      lead(scheduled_departure) over (partition by stop_id, line_id order by scheduled_departure)) / 60.0 as h
     from {{ ref('gtfs_departures') }}
 ),
 swt as (
-    select stop_id, line_id, date_trunc('hour', scheduled_departure) as hour,
+    select stop_id, line_id, mode, date_trunc('hour', scheduled_departure) as hour,
            sum(h * h) / (2 * sum(h)) as scheduled_wait_min
     from headways
     where h > 0 and h <= 60
@@ -30,6 +30,7 @@ swt as (
 select
     stop_id,
     line_id,
+    mode,
     hour,
     snapshots,
     actual_wait_min,

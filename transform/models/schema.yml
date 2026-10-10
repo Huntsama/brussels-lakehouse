@@ -43,6 +43,10 @@ models:
         data_tests: [not_null]
   - name: stop_line_hourly
     columns:
+      - name: mode
+        data_tests:
+          - accepted_values:
+              arguments: {values: [tram, metro, bus, other]}
       - name: scheduled_wait_min
         data_tests:
           - in_range:

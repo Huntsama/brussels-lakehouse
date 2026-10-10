@@ -10,7 +10,13 @@ jobs:
     env:
       AZURE_STORAGE_KEY: ${{ secrets.AZURE_STORAGE_KEY }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v6
-      - run: uv sync
-      - run: ./publish.sh
+      - if: env.AZURE_STORAGE_KEY == ''
+        run: echo "::notice::AZURE_STORAGE_KEY secret not set, skipping publish"
+      - if: env.AZURE_STORAGE_KEY != ''
+        uses: actions/checkout@v4
+      - if: env.AZURE_STORAGE_KEY != ''
+        uses: astral-sh/setup-uv@v6
+      - if: env.AZURE_STORAGE_KEY != ''
+        run: uv sync
+      - if: env.AZURE_STORAGE_KEY != ''
+        run: ./publish.sh

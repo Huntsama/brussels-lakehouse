@@ -4,6 +4,7 @@ set -euo pipefail
 ACCOUNT=${LAKE_ACCOUNT:-belakehouselake}
 # */*/* = real files only; the lake also lists its folders (source/, source/date=...) as empty blobs.
 # re-downloads everything each run; switch to azcopy sync once bronze is big
+mkdir -p data/bronze
 az storage blob download-batch -s bronze -d data/bronze --pattern '*/*/*' \
   --account-name "$ACCOUNT" --auth-mode key --overwrite -o none --only-show-errors
 uv run dbt build --project-dir transform --profiles-dir transform

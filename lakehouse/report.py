@@ -31,7 +31,7 @@ const rows = __DATA__;
 const hours = rows.map(r => r.hour.slice(5, 16).replace('T', ' '));
 const line = (id, series) => new Chart(document.getElementById(id), {
   type: 'line',
-  data: { labels: hours, datasets: series.map(([key, label]) => ({ label, data: rows.map(r => r[key]), spanGaps: true, pointRadius: 0 })) },
+  data: { labels: hours, datasets: series.map(([key, label]) => ({ label, data: rows.map(r => r[key]), spanGaps: true, pointRadius: rows.length < 48 ? 3 : 0 })) },
   options: { maintainAspectRatio: false, interaction: { mode: 'index', intersect: false } },
 });
 line('wait', [['median_wait_min', 'median wait']]);

@@ -9,6 +9,9 @@ jobs:
     runs-on: ubuntu-latest
     env:
       AZURE_STORAGE_KEY: ${{ secrets.AZURE_STORAGE_KEY }}
+      FTP_HOST: ${{ secrets.FTP_HOST }}
+      FTP_USER: ${{ secrets.FTP_USER }}
+      FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
     steps:
       - if: env.AZURE_STORAGE_KEY == ''
         run: echo "::notice::AZURE_STORAGE_KEY secret not set, skipping publish"
@@ -27,3 +30,6 @@ jobs:
           restore-keys: bronze-
       - if: env.AZURE_STORAGE_KEY != ''
         run: ./publish.sh
+      # Same page on lakehouse.jwds.me (shared hosting with a free certificate). Azure stays the source.
+      - if: env.AZURE_STORAGE_KEY != '' && env.FTP_PASSWORD != ''
+        run: curl -sS --ssl-reqd --user "$FTP_USER:$FTP_PASSWORD" -T site/index.html "ftp://$FTP_HOST/index.html"

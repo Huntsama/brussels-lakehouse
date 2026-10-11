@@ -1,0 +1,35 @@
+name: publish-live
+# live.jwds.me: the Brussels Live map (github.com/Huntsama/brussels-live) served next to the lakehouse on the same
+# hosting. Rebuilds the STIB network weekly and on demand, then uploads the static site with the lakehouse's FTP account
+# (its document root is lakehouse.jwds.me/live, so no second set of credentials).
+on:
+  schedule:
+    - cron: "30 4 * * 1"  # Mondays, after brussels-live's own weekly rebuild
+  workflow_dispatch:
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    env:
+      FTP_HOST: ${{ secrets.FTP_HOST }}
+      FTP_USER: ${{ secrets.FTP_USER }}
+      FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+    steps:
+      - if: env.FTP_PASSWORD == ''
+        run: echo "::notice::FTP secrets not set, skipping"
+      - if: env.FTP_PASSWORD != ''
+        uses: actions/checkout@v4
+        with:
+          repository: Huntsama/brussels-live
+      - if: env.FTP_PASSWORD != ''
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - if: env.FTP_PASSWORD != ''
+        run: python build_network.py site/network.json
+      - if: env.FTP_PASSWORD != ''
+        run: |
+          printf 'RewriteEngine On\nRewriteCond %%{HTTPS} off\nRewriteRule ^ https://%%{HTTP_HOST}%%{REQUEST_URI} [L,R=301]\n' > site/.htaccess
+          for f in index.html estimator.js network.json manifest.json icon.svg .htaccess; do
+            curl -sS --ssl-reqd --ftp-create-dirs --user "$FTP_USER:$FTP_PASSWORD" -T "site/$f" "ftp://$FTP_HOST/live/$f"
+          done
+          echo "https://live.jwds.me"

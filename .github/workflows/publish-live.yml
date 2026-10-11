@@ -30,6 +30,8 @@ jobs:
         run: |
           # force https, but leave /.well-known/ alone: that is where cPanel's free certificate gets validated
           printf 'RewriteEngine On\nRewriteCond %%{HTTPS} off\nRewriteCond %%{REQUEST_URI} !^/\\.well-known/\nRewriteRule ^ https://%%{HTTP_HOST}%%{REQUEST_URI} [L,R=301]\n' > site/.htaccess
+          # phones kept an old copy of the page for hours: make browsers re-check these files on every visit
+          printf '<FilesMatch "\\.(html|js|json|svg)$">\nHeader set Cache-Control "no-cache"\n</FilesMatch>\n' >> site/.htaccess
           for f in index.html estimator.js network.json manifest.json icon.svg .htaccess; do
             curl -sS --ssl-reqd --ftp-create-dirs --user "$FTP_USER:$FTP_PASSWORD" -T "site/$f" "ftp://$FTP_HOST/live/$f"
           done

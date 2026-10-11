@@ -12,6 +12,8 @@ The page answers in plain words whether STIB is on time right now, shows the ext
 |---|---|
 | ![Map of all stops](docs/map.png) | ![Line M6 stop by stop](docs/line.png) |
 
+**Sister project:** [Brussels Live](https://github.com/Huntsama/brussels-live) shows every STIB vehicle moving on a map right now. This lakehouse feeds it a small data product, `lines.json` (how late each line usually is, hour by hour), so the live map can say "line 71 is usually 2 min late at this hour". History here, live there.
+
 The question it answers:
 
 > How much longer do people wait for a STIB metro, tram or bus than the timetable promises, how polluted is the air, and how much power is Belgium using, hour by hour?
@@ -95,5 +97,6 @@ cd .. && func azure functionapp publish func-belakehouse
 - [x] Deployed on Azure (Germany West Central), STIB snapshots every 5 min, air and grid every 15
 - [x] Public dashboard, rebuilt hourly by GitHub Actions
 - [x] Analysis script: by mode, by line, by hour, correlations
+- [x] `lines.json` data product, read by the Brussels Live map
 - [ ] One week of data, then the correlation study written up
 - [ ] Power BI / Fabric report

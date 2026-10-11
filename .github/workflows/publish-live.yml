@@ -28,7 +28,8 @@ jobs:
         run: python build_network.py site/network.json
       - if: env.FTP_PASSWORD != ''
         run: |
-          printf 'RewriteEngine On\nRewriteCond %%{HTTPS} off\nRewriteRule ^ https://%%{HTTP_HOST}%%{REQUEST_URI} [L,R=301]\n' > site/.htaccess
+          # force https, but leave /.well-known/ alone: that is where cPanel's free certificate gets validated
+          printf 'RewriteEngine On\nRewriteCond %%{HTTPS} off\nRewriteCond %%{REQUEST_URI} !^/\\.well-known/\nRewriteRule ^ https://%%{HTTP_HOST}%%{REQUEST_URI} [L,R=301]\n' > site/.htaccess
           for f in index.html estimator.js network.json manifest.json icon.svg .htaccess; do
             curl -sS --ssl-reqd --ftp-create-dirs --user "$FTP_USER:$FTP_PASSWORD" -T "site/$f" "ftp://$FTP_HOST/live/$f"
           done

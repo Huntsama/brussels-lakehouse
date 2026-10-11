@@ -2,7 +2,7 @@
 
 Every 5 minutes this pipeline collects Brussels public-transport, air-quality and electricity data on Azure, and turns it into clean hourly tables and a public dashboard.
 
-**Live dashboard:** https://belakehouselake.z1.web.core.windows.net/ (rebuilt every hour)
+**Live dashboard:** https://lakehouse.jwds.me (rebuilt every hour; also served straight from Azure at https://belakehouselake.z1.web.core.windows.net/)
 
 ![Dashboard](docs/dashboard.png)
 

@@ -55,3 +55,7 @@ models:
     columns:
       - name: hour
         data_tests: [not_null, unique]
+  - name: gtfs_routes
+    columns:
+      - name: line_id
+        data_tests: [not_null, unique]

@@ -1,5 +1,6 @@
 RewriteEngine On
 RewriteCond %{HTTPS} off
+RewriteCond %{REQUEST_URI} !^/\.well-known/
 RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 # lines.json is a public data product: let other sites (the live map) read it
 <Files "lines.json">

@@ -1,10 +1,12 @@
 # Brussels open-data lakehouse
 
-Every 15 minutes this pipeline collects Brussels public-transport, air-quality and electricity data on Azure, and turns it into clean hourly tables and a public dashboard.
+Every 5 minutes this pipeline collects Brussels public-transport, air-quality and electricity data on Azure, and turns it into clean hourly tables and a public dashboard.
 
 **Live dashboard:** https://belakehouselake.z1.web.core.windows.net/ (rebuilt every hour)
 
 ![Dashboard](docs/dashboard.png)
+
+The page answers in plain words whether STIB is on time right now, shows the extra wait per hour for metro, tram and bus, the worst hours of the day, a map of every stop coloured by delay, and the lines furthest behind. Click a line to see which of its stops are late. Air quality, grid load and the full hourly table (with CSV download) sit below.
 
 The question it answers:
 
@@ -23,14 +25,14 @@ The question it answers:
 
 ```mermaid
 flowchart LR
-  A[STIB / IRCEL / Elia APIs] -->|every 15 min| F[Azure Function<br/>timer trigger]
+  A[STIB / IRCEL / Elia APIs] -->|STIB every 5 min, air and grid every 15| F[Azure Function<br/>timer trigger]
   F -->|managed identity| B[(ADLS Gen2<br/>bronze: raw JSON)]
   B --> S[dbt silver<br/>clean, dedupe, typed]
   S --> G[dbt gold<br/>city_hourly]
   G --> D[Dashboard]
 ```
 
-- **Bronze**: each API answer saved untouched, partitioned by `source/date=YYYY-MM-DD/HHMMSS.json`.
+- **Bronze**: each API answer saved untouched as gzipped JSON, partitioned by `source/date=YYYY-MM-DD/HHMMSS.json.gz`.
 - **Silver** (`transform/models/silver`): one tidy table per source. Overlapping snapshots are de-duplicated, latest revision wins.
 - **Gold**:
   - `stop_line_hourly`: **Excess Wait Time** per stop, line and hour, the punctuality measure Transport for London uses for frequent services. Actual wait (minutes to the next vehicle at a random moment, from our snapshots) minus scheduled wait (`Σh² / 2Σh` over timetable headways).
@@ -86,7 +88,7 @@ cd .. && func azure functionapp publish func-belakehouse
 - [x] dbt silver and gold with tests, CI
 - [x] Terraform for Azure (lake, function, budget)
 - [x] Excess Wait Time vs the GTFS timetable
-- [x] Deployed on Azure (Germany West Central), snapshots every 15 min
+- [x] Deployed on Azure (Germany West Central), STIB snapshots every 5 min, air and grid every 15
 - [x] Public dashboard, rebuilt hourly by GitHub Actions
 - [x] Analysis script: by mode, by line, by hour, correlations
 - [ ] One week of data, then the correlation study written up

@@ -8,6 +8,10 @@ Every 5 minutes this pipeline collects Brussels public-transport, air-quality an
 
 The page answers in plain words whether STIB is on time right now, shows the extra wait per hour for metro, tram and bus, the worst hours of the day, a map of every stop coloured by delay, and the lines furthest behind. Click a line to see which of its stops are late. Air quality, grid load and the full hourly table (with CSV download) sit below.
 
+| Every stop, coloured by delay | Click a line: its stops, worst first |
+|---|---|
+| ![Map of all stops](docs/map.png) | ![Line M6 stop by stop](docs/line.png) |
+
 The question it answers:
 
 > How much longer do people wait for a STIB metro, tram or bus than the timetable promises, how polluted is the air, and how much power is Belgium using, hour by hour?

@@ -1,4 +1,4 @@
-"""Azure Function: every 15 minutes, save one snapshot of each source to the data lake."""
+"""Azure Function: save snapshots to the data lake, STIB every 5 minutes, air and grid every 15."""
 
 import os
 from datetime import datetime, timezone
@@ -27,11 +27,20 @@ def blob_writer():
     return write
 
 
-@app.timer_trigger(arg_name="timer", schedule="0 */15 * * * *")
-def snapshot(timer: func.TimerRequest) -> None:
-    failed = ingest.run(blob_writer())
+def snapshot(sources):
+    failed = ingest.run(blob_writer(), sources)
     if failed:
         raise RuntimeError(f"sources failed: {failed}")
+
+
+@app.timer_trigger(arg_name="timer", schedule="0 */5 * * * *")
+def stib(timer: func.TimerRequest) -> None:
+    snapshot(ingest.STIB_SOURCES)
+
+
+@app.timer_trigger(arg_name="timer", schedule="0 */15 * * * *")
+def air_and_grid(timer: func.TimerRequest) -> None:
+    snapshot(ingest.SLOW_SOURCES)
 
 
 @app.timer_trigger(arg_name="timer", schedule="0 0 3 * * 1")  # Mondays 03:00 UTC

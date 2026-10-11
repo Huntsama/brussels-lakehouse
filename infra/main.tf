@@ -42,7 +42,7 @@ resource "azurerm_storage_container" "layer" {
   storage_account_id = azurerm_storage_account.lake.id
 }
 
-# Function app on Flex Consumption: pay per run, free grant covers a 15-min timer.
+# Function app on Flex Consumption: pay per run, free grant covers a 5-min timer (~8,600 runs a month).
 resource "azurerm_storage_account" "func" {
   name                     = "${var.name}func"
   resource_group_name      = azurerm_resource_group.rg.name

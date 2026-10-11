@@ -1,3 +1,4 @@
+import gzip
 import json
 from datetime import datetime, timezone
 
@@ -8,9 +9,9 @@ NOW = datetime(2026, 10, 10, 8, 15, tzinfo=timezone.utc)
 
 def test_run_writes_partitioned_files(tmp_path):
     failed = ingest.run(ingest.local_writer(tmp_path), {"elia": lambda: {"results": [1]}}, NOW)
-    path = tmp_path / "elia" / "date=2026-10-10" / "081500.json"
+    path = tmp_path / "elia" / "date=2026-10-10" / "081500.json.gz"
     assert failed == []
-    assert json.loads(path.read_text()) == {"fetched_at": NOW.isoformat(), "data": {"results": [1]}}
+    assert json.loads(gzip.decompress(path.read_bytes())) == {"fetched_at": NOW.isoformat(), "data": {"results": [1]}}
 
 
 def test_one_failing_source_does_not_stop_the_rest(tmp_path):
@@ -19,7 +20,7 @@ def test_one_failing_source_does_not_stop_the_rest(tmp_path):
 
     failed = ingest.run(ingest.local_writer(tmp_path), {"a": boom, "b": lambda: []}, NOW)
     assert failed == ["a"]
-    assert (tmp_path / "b" / "date=2026-10-10" / "081500.json").exists()
+    assert (tmp_path / "b" / "date=2026-10-10" / "081500.json.gz").exists()
 
 
 def test_ircel_keeps_only_brussels(monkeypatch):

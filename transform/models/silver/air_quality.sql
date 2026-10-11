@@ -1,7 +1,7 @@
 -- Hourly pollutant values per Brussels station; snapshots overlap, keep one row per hour.
 with raw as (
     select fetched_at, unnest(data) as s
-    from read_json_auto('{{ var("bronze") }}/ircel/*/*.json')
+    from read_json_auto('{{ var("bronze") }}/ircel/*/*.json*')
 ),
 v as (
     select fetched_at, s.station, s.pollutant, s.lat, s.lon, unnest(s."values") as x

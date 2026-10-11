@@ -1,7 +1,7 @@
 -- One row per (snapshot, stop, line, upcoming arrival).
 with raw as (
     select fetched_at, unnest(data.results) as r
-    from read_json_auto('{{ var("bronze") }}/stib_waiting/*/*.json')
+    from read_json_auto('{{ var("bronze") }}/stib_waiting/*/*.json*')
 ),
 arrivals as (
     select

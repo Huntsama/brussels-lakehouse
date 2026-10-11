@@ -1,9 +1,10 @@
 """Pull one snapshot of each source and save it untouched (bronze).
 
-Layout: <BRONZE_DIR>/<source>/date=YYYY-MM-DD/<HHMMSS>.json
-Run every 15 minutes; STIB is real-time only, so history = our snapshots.
+Layout: <BRONZE_DIR>/<source>/date=YYYY-MM-DD/<HHMMSS>.json.gz
+STIB every 5 minutes, air and grid every 15; STIB is real-time only, so history = our snapshots.
 """
 
+import gzip
 import json
 import os
 import sys
@@ -80,26 +81,25 @@ def elia(days=2):
     })
 
 
-SOURCES = {
-    "stib_vehicles": stib_vehicles,
-    "stib_waiting": stib_waiting,
-    "ircel": ircel,
-    "elia": elia,
-}
+# STIB changes minute to minute; IRCEL is hourly and Elia 15-min, so polling those faster adds nothing.
+STIB_SOURCES = {"stib_vehicles": stib_vehicles, "stib_waiting": stib_waiting}
+SLOW_SOURCES = {"ircel": ircel, "elia": elia}
+SOURCES = STIB_SOURCES | SLOW_SOURCES
 
 
 def local_writer(root):
     def write(key, text):
         path = Path(root) / key
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(text)
+        path.write_bytes(text) if isinstance(text, bytes) else path.write_text(text)
         return path
     return write
 
 
 def save(write, source, payload, now):
-    key = f"{source}/date={now:%Y-%m-%d}/{now:%H%M%S}.json"
-    return write(key, json.dumps({"fetched_at": now.isoformat(), "data": payload}))
+    # gzip: STIB waiting times are ~0.8 MB of JSON per snapshot, ~10x smaller compressed; DuckDB reads .gz as is
+    key = f"{source}/date={now:%Y-%m-%d}/{now:%H%M%S}.json.gz"
+    return write(key, gzip.compress(json.dumps({"fetched_at": now.isoformat(), "data": payload}).encode()))
 
 
 def run(write, sources=SOURCES, now=None):

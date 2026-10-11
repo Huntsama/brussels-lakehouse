@@ -1,7 +1,7 @@
 -- Latest known name and position per stop.
 with raw as (
     select fetched_at, unnest(data.results) as r
-    from read_json_auto('{{ var("bronze") }}/stib_stops/*/*.json')
+    from read_json_auto('{{ var("bronze") }}/stib_stops/*/*.json*')
 )
 select
     r.id as stop_id,

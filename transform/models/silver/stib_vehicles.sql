@@ -1,7 +1,7 @@
 -- One row per vehicle seen in a snapshot.
 with raw as (
     select fetched_at, unnest(data.results) as r
-    from read_json_auto('{{ var("bronze") }}/stib_vehicles/*/*.json')
+    from read_json_auto('{{ var("bronze") }}/stib_vehicles/*/*.json*')
 ),
 v as (
     select

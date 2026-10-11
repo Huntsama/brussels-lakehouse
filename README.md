@@ -12,7 +12,7 @@ The page answers in plain words whether STIB is on time right now, shows the ext
 |---|---|
 | ![Map of all stops](docs/map.png) | ![Line M6 stop by stop](docs/line.png) |
 
-**Sister project:** [Brussels Live](https://github.com/Huntsama/brussels-live) shows every STIB vehicle moving on a map right now. This lakehouse feeds it a small data product, `lines.json` (how late each line usually is, hour by hour), so the live map can say "line 71 is usually 2 min late at this hour". History here, live there.
+**Sister project:** [Brussels Live](https://live.jwds.me) ([code](https://github.com/Huntsama/brussels-live)) shows every STIB vehicle moving on a map right now. This lakehouse feeds it a small data product, `lines.json` (how late each line usually is, hour by hour), so the live map can say "line 71 is usually 2 min late at this hour". History here, live there.
 
 The question it answers:
 

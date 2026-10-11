@@ -173,7 +173,11 @@ PAGE = """<!doctype html>
       <a class="underline hover:text-slate-900" href="https://github.com/Huntsama/brussels-lakehouse">Source code on GitHub</a></p>
   </section>
 
-  <footer class="text-xs text-slate-400 text-center">Page built <span id="built"></span> · __HOURS__ hours of data since <span id="since"></span></footer>
+  <footer class="pt-2 pb-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-sm text-slate-500">
+    <p>Developed by <a class="font-medium text-slate-700 hover:text-slate-900 underline-offset-4 hover:underline" href="https://www.jwds.me">Jawad Shaissah</a> ·
+      <a class="hover:text-slate-900 underline-offset-4 hover:underline" href="https://www.jwds.me">jwds.me</a></p>
+    <p class="text-xs text-slate-400">Page built <span id="built"></span> · __HOURS__ hours of data since <span id="since"></span></p>
+  </footer>
 </main>
 
 <dialog id="hourly" class="rounded-2xl p-0 w-[min(1000px,94vw)] backdrop:bg-slate-900/40">

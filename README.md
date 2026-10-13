@@ -8,9 +8,11 @@ Every 5 minutes this pipeline collects Brussels public-transport, air-quality an
 
 The page answers in plain words whether STIB is on time right now, shows the extra wait per hour for metro, tram and bus, the worst hours of the day, a map of every stop coloured by delay, and the lines furthest behind. Click a line to see which of its stops are late. Air quality, grid load and the full hourly table (with CSV download) sit below.
 
+The screenshots are from the morning of Tuesday 13 October 2026, after a day when almost nothing ran on time. On Monday 12 October people waited a median 4.7 minutes longer than the timetable promised across Brussels, in 19 of 22 measured hours more than 3 minutes. Bus was worst (+5.3 min median), tram +3.0, metro +2.0. Of 68 lines, 58 were more than 3 minutes behind and 29 more than 5; 84% of the 1,634 stops were red. Bus 58 ran 10.1 minutes late at a typical stop, 21.5 minutes in a bad hour, at every one of its 40 stops. Only bus 72 ran early.
+
 | Every stop, coloured by delay | Click a line: its stops, worst first |
 |---|---|
-| ![Map of all stops](docs/map.png) | ![Line M6 stop by stop](docs/line.png) |
+| ![Map of all stops, 84% red](docs/map.png) | ![Bus 58 stop by stop, 10 min late everywhere](docs/line.png) |
 
 **Sister project:** [Brussels Live](https://live.jwds.me) ([code](https://github.com/Huntsama/brussels-live)) shows every STIB vehicle moving on a map right now. This lakehouse feeds it a small data product, `lines.json` (how late each line usually is, hour by hour), so the live map can say "line 71 is usually 2 min late at this hour". History here, live there.
 
@@ -50,7 +52,9 @@ flowchart LR
 
 `uv run python -m lakehouse.analysis` prints excess wait by mode, by line and by hour of day, and correlates it with air quality and grid load (raw, and with the daily rhythm removed so rush hour isn't mistaken for a link).
 
-First look (13 hours, 10 Oct 2026): metro runs +0.5 min over its timetable, tram +0.4, bus +0.4. Bus 75 and tram 35 are the furthest behind. The correlations wait for a full week of data.
+First look (13 hours, Fri 10 Oct 2026): metro +0.5 min over its timetable, tram +0.4, bus +0.4; bus 75 and tram 35 furthest behind.
+
+First full day (Mon 12 Oct 2026, 22 hours): a different picture. Citywide median excess wait +4.7 min, peaking at +6.1 min at 20:00. Bus +5.3 min, tram +3.0, metro +2.0 (metro 2 alone +5.6). 58 of 68 lines more than 3 min behind; the worst eight are all buses: 58 (+10.1), 78 (+8.8), 73 (+8.2), 45 and 36 (+7.8), 46 (+7.3), 87 (+7.2), T81 (+6.8). By hour of day the delay climbs from +2 min at 04:00 to over +5 min from 11:00 and stays there until the last vehicles. The correlations still wait for a full week of data.
 
 ## Field notes
 

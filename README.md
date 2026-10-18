@@ -54,7 +54,11 @@ flowchart LR
 
 First look (13 hours, Fri 10 Oct 2026): metro +0.5 min over its timetable, tram +0.4, bus +0.4; bus 75 and tram 35 furthest behind.
 
-First full day (Mon 12 Oct 2026, 22 hours): a different picture. Citywide median excess wait +4.7 min, peaking at +6.1 min at 20:00. Bus +5.3 min, tram +3.0, metro +2.0 (metro 2 alone +5.6). 58 of 68 lines more than 3 min behind; the worst eight are all buses: 58 (+10.1), 78 (+8.8), 73 (+8.2), 45 and 36 (+7.8), 46 (+7.3), 87 (+7.2), T81 (+6.8). By hour of day the delay climbs from +2 min at 04:00 to over +5 min from 11:00 and stays there until the last vehicles. The correlations still wait for a full week of data.
+First full day (Mon 12 Oct 2026, 22 hours): a different picture. Citywide median excess wait +4.7 min, peaking at +6.1 min at 20:00. Bus +5.3 min, tram +3.0, metro +2.0 (metro 2 alone +5.6). 58 of 68 lines more than 3 min behind; the worst eight are all buses: 58 (+10.1), 78 (+8.8), 73 (+8.2), 45 and 36 (+7.8), 46 (+7.3), 87 (+7.2), T81 (+6.8). By hour of day the delay climbs from +2 min at 04:00 to over +5 min from 11:00 and stays there until the last vehicles.
+
+First full week (Tue 13 to Sun 18 Oct 2026, 1,800 snapshots, 9.6M arrival predictions): Monday turned out to be the exception. On a normal day the wait is barely longer than the timetable promises: metro +0.47 min, bus +0.39, tram +0.38. Only 3 of 87 lines run more than a minute behind at a typical stop (T81 +1.4, 46 +1.4, 69 +0.9), and 17 run slightly early. The worst moment of a weekday is the first hour of service (+2.6 min at 04:00), then the evening rush (+0.8 at 16:00). Weekends are calmer still (Sat +0.28, Sun +0.15).
+
+STIB's own countdowns, followed snapshot by snapshot up to the arrival, are off by about a minute: 0.9 min on average five minutes ahead, 1.1 min fifteen minutes ahead. The vehicle usually comes later than shown (+0.3 min), never earlier on average. That steady lateness is the next thing to learn: a model trained on this week should beat the countdown it starts from.
 
 ## Field notes
 
@@ -102,5 +106,7 @@ cd .. && func azure functionapp publish func-belakehouse
 - [x] Public dashboard, rebuilt hourly by GitHub Actions
 - [x] Analysis script: by mode, by line, by hour, correlations
 - [x] `lines.json` data product, read by the Brussels Live map
-- [ ] One week of data, then the correlation study written up
+- [x] One week of data (12 to 18 Oct 2026)
+- [ ] Correlation study written up
+- [ ] Machine learning: excess wait per stop and hour, and a correction for STIB's countdown
 - [ ] Power BI / Fabric report

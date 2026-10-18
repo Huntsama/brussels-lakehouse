@@ -13,7 +13,7 @@ select
     lat,
     lon,
     to_timestamp(x."timestamp" / 1000) as measured_at,
-    x."value" as value_ugm3
+    greatest(x."value", 0) as value_ugm3  -- PM sensors read slightly below 0 on clean nights
 from v
 where x."value" is not null
 qualify row_number() over (partition by station, pollutant, x."timestamp" order by fetched_at desc) = 1

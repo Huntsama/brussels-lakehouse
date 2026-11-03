@@ -15,6 +15,9 @@ PAGE = """<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Brussels Hour by Hour</title>
+<!-- Google Analytics, same property as jwds.me (reports split by hostname) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-F941GGFT4V"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-F941GGFT4V');</script>
 <meta name="description" content="How late STIB runs against its own timetable, stop by stop and hour by hour, with Brussels air quality and Belgian grid load.">
 <script src="https://cdn.tailwindcss.com/3.4.16"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>

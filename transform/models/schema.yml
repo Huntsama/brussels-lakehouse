@@ -7,9 +7,15 @@ models:
         data_tests: [not_null]
       - name: expected_arrival
         data_tests: [not_null]
+      - name: line_id
+        data_tests: [not_null]
+      - name: fetched_at
+        data_tests: [not_null]
   - name: stib_vehicles
     columns:
       - name: line_id
+        data_tests: [not_null]
+      - name: fetched_at
         data_tests: [not_null]
   - name: stib_stops
     columns:
@@ -19,8 +25,16 @@ models:
         data_tests:
           - in_range:
               arguments: {min: 50.7, max: 51.0}
+      - name: lon
+        data_tests:
+          - in_range:
+              arguments: {min: 4.2, max: 4.6}
   - name: air_quality
     columns:
+      - name: station
+        data_tests: [not_null]
+      - name: measured_at
+        data_tests: [not_null]
       - name: pollutant
         data_tests:
           - accepted_values:
@@ -41,6 +55,8 @@ models:
     columns:
       - name: scheduled_departure
         data_tests: [not_null]
+      - name: stop_id
+        data_tests: [not_null]
   - name: stop_line_hourly
     columns:
       - name: mode
@@ -51,10 +67,18 @@ models:
         data_tests:
           - in_range:
               arguments: {min: 0, max: 30}
+      - name: actual_wait_min
+        data_tests:
+          - in_range:
+              arguments: {min: 0, max: 60}
   - name: city_hourly
     columns:
       - name: hour
         data_tests: [not_null, unique]
+      - name: median_wait_min
+        data_tests:
+          - in_range:
+              arguments: {min: 0, max: 60}
   - name: gtfs_routes
     columns:
       - name: line_id

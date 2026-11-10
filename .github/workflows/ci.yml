@@ -14,3 +14,6 @@ jobs:
       - run: uv run pytest -q
       - run: uv run dbt build --project-dir transform --profiles-dir transform
       - run: uv run python -m lakehouse.analysis
+      # the public page: it must build, and its inline JavaScript must parse, before any change is merged
+      - run: uv run python -m lakehouse.report /tmp/index.html
+      - run: python3 tests/check_page.py /tmp/index.html

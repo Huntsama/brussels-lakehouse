@@ -4,6 +4,9 @@ on:
     - cron: "7 * * * *"
   workflow_dispatch:
 
+# one publish at a time: a manual run and the hourly one must not upload over each other
+concurrency: publish
+
 jobs:
   publish:
     runs-on: ubuntu-latest
@@ -36,3 +39,10 @@ jobs:
           for f in index.html lines.json .htaccess; do
             curl -sS --ssl-reqd --user "$FTP_USER:$FTP_PASSWORD" -T "site/$f" "ftp://$FTP_HOST/$f"
           done
+          # the live page must now carry this run's data (retry: the host can take a few seconds)
+          want=$(grep -o '"updated":"[^"]*"' site/index.html | head -1)
+          for i in 1 2 3 4 5; do
+            curl -sfL "https://lakehouse.jwds.me/?$RANDOM" | grep -qF "$want" && { echo "live: $want"; exit 0; }
+            sleep 10
+          done
+          echo "::error::lakehouse.jwds.me does not show $want"; exit 1

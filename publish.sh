@@ -17,6 +17,8 @@ else
 fi
 uv run dbt build --project-dir transform --profiles-dir transform
 uv run python -m lakehouse.report site/index.html
+# never upload a page whose script is broken, and fail loudly (GitHub emails) when no reading arrived for 12 hours (STIB itself is silent ~5 h a night)
+python3 tests/check_page.py site/index.html 12
 az storage blob upload --account-name "$ACCOUNT" --auth-mode key -c '$web' -f site/index.html -n index.html \
   --content-type "text/html; charset=utf-8" --overwrite -o none
 az storage blob upload --account-name "$ACCOUNT" --auth-mode key -c '$web' -f site/lines.json -n lines.json \
